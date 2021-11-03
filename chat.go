@@ -54,8 +54,8 @@ func main() {
 	secret_key := os.Getenv("TWITCH_SECRET")
 	nick := "oacs69"
 	con := irc.IRC(nick, "IRCTestSSL")
-	con.VerboseCallbackHandler = true
-	con.Debug = true
+	con.VerboseCallbackHandler = false
+	con.Debug = false
 	con.UseTLS = true
 	con.Password = "oauth:" + secret_key
 	con.TLSConfig = &tls.Config{InsecureSkipVerify: true}

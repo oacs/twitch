@@ -1,51 +1,16 @@
 body {
   background-color: #272727;
-  padding: 10px;
-}
-
-.fakeButtons {
-  height: 10px;
-  width: 10px;
-  border-radius: 50%;
-  border: 1px solid #000;
-  position: relative;
-  top: 6px;
-  left: 6px;
-  background-color: #ff3b47;
-  border-color: #9d252b;
-  display: inline-block;
-}
-
-.fakeMinimize {
-  left: 11px;
-  background-color: #ffc100;
-  border-color: #9d802c;
-}
-
-.fakeZoom {
-  left: 16px;
-  background-color: #00d742;
-  border-color: #049931;
-}
-
-.fakeMenu {
-  width: 550px;
-  box-sizing: border-box;
-  height: 25px;
-  background-color: #bbb;
-  margin: 0 auto;
-  border-top-right-radius: 5px;
-  border-top-left-radius: 5px;
+  margin: 0;
 }
 
 .fakeScreen {
-  background-color: #696969;
+  background-color: #000000;
   box-sizing: border-box;
-  width: 550px;
-  margin: 0 auto;
+  width: 425px;
+  height: 200px;
+  overflow: hidden;
   padding: 20px;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+  opacity: 0.6;
 }
 
 p {
@@ -57,6 +22,7 @@ p {
   white-space: normal;
   overflow: hidden;
   width: 0;
+  font-weight: bold;
 }
 
 span {
@@ -69,19 +35,19 @@ span {
 }
 
 .username-path {
-  color: #eeca00;
+  color: #20bf55;
 }
 
 .usr-path {
-  color: #000000;
+  color: #EEEEEE;
 }
 
 .slash {
-  color: #3d3d3d;
+  color: #FFFFFF;
 }
 
 .message-text {
-  color: cornflowerblue;
+  color: #01baef;
 }
 
 .caret {
@@ -89,18 +55,18 @@ span {
 }
 
 .line1 {
-  color: #9CD9F0;
-  -webkit-animation: type .5s 1s steps(20, end) forwards;
-  -moz-animation: type .5s 1s steps(20, end) forwards;
-  -o-animation: type .5s 1s steps(20, end) forwards;
-  animation: type .5s 1s steps(20, end) forwards;
+  color: #9cd9f0;
+  -webkit-animation: type 0.5s 1s steps(20, end) forwards;
+  -moz-animation: type 0.5s 1s steps(20, end) forwards;
+  -o-animation: type 0.5s 1s steps(20, end) forwards;
+  animation: type 0.5s 1s steps(20, end) forwards;
 }
 
 .cursor1 {
-  -webkit-animation: blink 1s 2s 2 forwards;
-  -moz-animation: blink 1s 2s 2 forwards;
-  -o-animation: blink 1s 2s 2 forwards;
-  animation: blink 1s 2s 2 forwards;
+  -webkit-animation: blink 1s 2s 2 infinite;
+  -moz-animation: blink 1s 2s 2 infinite;
+  -o-animation: blink 1s 2s 2 infinite;
+  animation: blink 1s 2s 2 infinite;
 }
 
 @-webkit-keyframes blink {
@@ -200,38 +166,49 @@ span {
 }
 
 .typewriter {
+  font-family: "Lato", sans-serif;
   overflow: hidden; /* Ensures the content is not revealed until the animation */
-  white-space: nowrap; /* Keeps the content on a single line */
   margin: 0 auto; /* Gives that scrolling effect as the typing happens */
-  letter-spacing: .15em; /* Adjust as needed */
   color: white;
-  animation: 
-    typing 0.5s steps(40, end) forwards;
-  -webkit-animation:
-    typing 0.5s steps(40, end) forwards;
-  -moz-animation: 
-    typing 0.5s steps(40, end) forwards;
-  -o-animation: 
-    typing 0.5s steps(40, end) forwards;
+  animation: typing 0.3s steps(40, end) forwards;
+  -webkit-animation: typing 0.3s steps(40, end) forwards;
+  -moz-animation: typing 0.3s steps(40, end) forwards;
+  -o-animation: typing 0.3s steps(40, end) forwards;
 }
 
 /* The typing effect */
 @keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @-webkit-keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @-moz-keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @-o-keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
