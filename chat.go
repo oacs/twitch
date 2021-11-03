@@ -4,11 +4,13 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
+	irc "github.com/thoj/go-ircevent"
 	"log"
 	"net/http"
 	"net/url"
-	"github.com/gorilla/websocket"
-	irc "github.com/thoj/go-ircevent"
+	"os"
 )
 
 // Websocket connection address
@@ -48,21 +50,30 @@ const channel = "#oacs69"
 const serverssl = "irc.chat.twitch.tv:6697"
 
 func main() {
+	godotenv.Load(".env.local")
+	secret_key := os.Getenv("TWITCH_SECRET")
 	nick := "oacs69"
 	con := irc.IRC(nick, "IRCTestSSL")
-	con.VerboseCallbackHandler = false
+	con.VerboseCallbackHandler = true
 	con.Debug = true
 	con.UseTLS = true
-	con.Password = "oauth:rujzw7slvcyc8b8q2kwcirxdfx0sa7"
+	con.Password = "oauth:" + secret_key
 	con.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	// On connect join the channel
+	con.AddCallback("001", func(e *irc.Event) {
+		con.SendRaw("CAP REQ :twitch.tv/membership\n")
+		con.SendRaw("CAP REQ :twitch.tv/commands\n")
+		con.SendRaw("CAP REQ :twitch.tv/tags\n")
+		con.Join(channel)
+	})
+	con.AddCallback("366", func(e *irc.Event) {
+	})
 
-  // On connect join the channel
-	con.AddCallback("001", func(e *irc.Event) { con.Join(channel) })
-
-  // Return the message to the websocket
+	// Return the message to the websocket
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		for _, c := range c {
 			data := e.Nick + ": " + e.Message()
+
 			c.WriteMessage(websocket.TextMessage, []byte(data))
 		}
 	})
@@ -74,14 +85,16 @@ func main() {
 		return
 	}
 
-  // Websocket init
+	// Websocket init
+	fs := http.FileServer(http.Dir("./static"))
 	flag.Parse()
 	log.SetFlags(0)
 	http.HandleFunc("/chat", chat)
+	http.Handle("/", fs)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 	u := url.URL{Scheme: "ws", Host: *addr, Path: "/echo"}
 	log.Printf("connecting to %s", u.String())
 
-  // IRC init
+	// IRC init
 	con.Loop()
 }
