@@ -2,16 +2,25 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"github.com/joho/godotenv"
-	irc "github.com/thoj/go-ircevent"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
+	irc "github.com/thoj/go-ircevent"
 )
+
+// The same json tags will be used to encode data into JSON
+type MessageData struct {
+	Message     string            `json:"message"`
+	DisplayName string            `json:"displayName"`
+	Tags        map[string]string `json:"tags"`
+}
 
 // Websocket connection address
 var addr = flag.String("addr", "localhost:8080", "http service address")
@@ -71,10 +80,19 @@ func main() {
 
 	// Return the message to the websocket
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
+		// make json with the tags on event
+		messageData := &MessageData{
+			Message:     e.Message(),
+			DisplayName: e.Tags["display-name"],
+			Tags:        e.Tags,
+		}
+		jsonRaw, err := json.Marshal(messageData)
+		if err != nil {
+			log.Println("error:", err)
+		}
+		jsonString := string(jsonRaw)
 		for _, con := range c {
-			data := e.Nick + ": " + e.Message()
-
-			con.WriteMessage(websocket.TextMessage, []byte(data))
+			con.WriteMessage(websocket.TextMessage, []byte(jsonString))
 		}
 	})
 

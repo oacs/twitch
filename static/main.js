@@ -23,15 +23,23 @@ window.onload = async () => {
   carret.classList.add("carret");
   carret.innerText = " > ";
 
-  const addMessage = (chat, rawMessage) => {
-    const [user, message] = rawMessage.split(":");
+  const addMessage = (chat, messageEvent) => {
+    const { displayName, message, tags } = messageEvent;
+    const { badges } = tags;
+    // split badges into an array with ,
+    const badgesMap = badges.split(",").reduce((acc, badge) => {
+      const [badgeName, amount] = badge.split("/");
+      acc[badgeName] = amount;
+      return acc;
+    }, {});
+
     const messageContainer = document.createElement("p");
     messageContainer.classList.add("typewriter");
 
     // Username path
     const usernamePath = document.createElement("span");
     usernamePath.classList.add("username-path");
-    usernamePath.innerText = user;
+    usernamePath.innerText = displayName;
     // message
     const messageText = document.createElement("span");
     messageText.classList.add("message-text");
@@ -39,7 +47,9 @@ window.onload = async () => {
 
     messageContainer.appendChild(dollar.cloneNode(true));
     messageContainer.appendChild(slash.cloneNode(true));
-    messageContainer.appendChild(usrPath.cloneNode(true));
+    messageContainer.appendChild(
+      mapUsrWithBadge(badgesMap, usrPath.cloneNode(true))
+    );
     messageContainer.appendChild(slash.cloneNode(true));
     messageContainer.appendChild(usernamePath);
     messageContainer.appendChild(carret.cloneNode(true));
@@ -52,13 +62,11 @@ window.onload = async () => {
     }
 
     chat.lastChild.scrollIntoView();
-
-    console.log(chat.getChildNodes());
   };
 
+  const chat = document.getElementById("chat-container");
   ws.onmessage = function (event) {
-    const chat = document.getElementById("chat-container");
-    addMessage(chat, event.data);
+    addMessage(chat, JSON.parse(event.data));
   };
 };
 
@@ -102,10 +110,26 @@ const messageParser = (message, emoteMap, betterttvMap) => {
       if (emoteMap[word]) {
         return `<img src="${emoteMap[word]}" />`;
       } else if (betterttvMap[word]) {
-        console.log(betterttvMap[word]);
-        return `<img src="https://cdn.betterttv.net/emote/${betterttvMap[word]}/1x" />`;
+        return `<img style="width: 2.3rem" src="https://cdn.betterttv.net/emote/${betterttvMap[word]}/2x" />`;
       }
       return word;
     })
     .join(" ");
+};
+
+const mapUsrWithBadge = (badges, node) => {
+  const { vip, moderator, broadcaster, subscriber, premium } = badges;
+
+  if (broadcaster) {
+    node.textContent = "adm";
+  } else if (moderator) {
+    node.textContent = "mod";
+  } else if (vip) {
+    node.textContent = "vip";
+  } else if (subscriber) {
+    node.textContent = "sub";
+  } else if (premium) {
+    node.textContent = "pri";
+  }
+  return node;
 };
