@@ -55,7 +55,7 @@ func main() {
 	nick := "oacs69"
 	con := irc.IRC(nick, "IRCTestSSL")
 	con.VerboseCallbackHandler = false
-	con.Debug = false
+	con.Debug = true
 	con.UseTLS = true
 	con.Password = "oauth:" + secret_key
 	con.TLSConfig = &tls.Config{InsecureSkipVerify: true}
@@ -71,10 +71,10 @@ func main() {
 
 	// Return the message to the websocket
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		for _, c := range c {
+		for _, con := range c {
 			data := e.Nick + ": " + e.Message()
 
-			c.WriteMessage(websocket.TextMessage, []byte(data))
+			con.WriteMessage(websocket.TextMessage, []byte(data))
 		}
 	})
 

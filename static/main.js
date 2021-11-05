@@ -1,5 +1,8 @@
 window.onload = async () => {
+  const ws = new WebSocket("ws://localhost:8080/chat");
   const emoteMap = await getEmoteMap();
+  const betterttvMap = await getBetterttvMap();
+
   // Dollar
   const dollar = document.createElement("span");
   dollar.classList.add("dollar");
@@ -20,8 +23,6 @@ window.onload = async () => {
   carret.classList.add("carret");
   carret.innerText = " > ";
 
-  const ws = new WebSocket("ws://localhost:8080/chat");
-
   const addMessage = (chat, rawMessage) => {
     const [user, message] = rawMessage.split(":");
     const messageContainer = document.createElement("p");
@@ -34,7 +35,7 @@ window.onload = async () => {
     // message
     const messageText = document.createElement("span");
     messageText.classList.add("message-text");
-    messageText.innerHTML = messageParser(message, emoteMap);
+    messageText.innerHTML = messageParser(message, emoteMap, betterttvMap);
 
     messageContainer.appendChild(dollar.cloneNode(true));
     messageContainer.appendChild(slash.cloneNode(true));
@@ -61,6 +62,27 @@ window.onload = async () => {
   };
 };
 
+const mapBetterttvRawJson = (emotes) =>
+  emotes.reduce((acc, emote) => {
+    acc[emote.code] = emote.id;
+    return acc;
+  }, {});
+// Grab emotes from betterttv api
+const getBetterttvMap = async () => {
+  const channel = "102965110";
+  const globalEmotes = await fetch(
+    "https://api.betterttv.net/3/cached/emotes/global"
+  ).then((response) => response.json());
+  const channelEmotes = await fetch(
+    `https://api.betterttv.net/3/cached/users/twitch/${channel}`
+  ).then((response) => response.json());
+
+  return {
+    ...mapBetterttvRawJson(globalEmotes),
+    ...mapBetterttvRawJson(channelEmotes.sharedEmotes),
+  };
+};
+
 // Grab emotes.json and map into an object
 const getEmoteMap = async () => {
   return fetch("/emotes.json")
@@ -73,12 +95,15 @@ const getEmoteMap = async () => {
     );
 };
 
-const messageParser = (message, emoteMap) => {
+const messageParser = (message, emoteMap, betterttvMap) => {
   const words = message.split(" ");
   return words
     .map((word) => {
       if (emoteMap[word]) {
         return `<img src="${emoteMap[word]}" />`;
+      } else if (betterttvMap[word]) {
+        console.log(betterttvMap[word]);
+        return `<img src="https://cdn.betterttv.net/emote/${betterttvMap[word]}/1x" />`;
       }
       return word;
     })

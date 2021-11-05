@@ -5,6 +5,8 @@
 *.so
 *.dylib
 .env.local
+betterttv
+twitch
 
 # Test binary, built with `go test -c`
 *.test
