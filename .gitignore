@@ -7,6 +7,8 @@
 .env.local
 betterttv
 twitch
+tmp
+ngrok
 
 # Test binary, built with `go test -c`
 *.test

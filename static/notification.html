@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <title>Notification</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <script>
+      window.onload = async () => {
+        const ws = new WebSocket("ws://localhost:7001/chat");
+        ws.onmessage = async (event) => {
+          const chat = document.getElementById("container");
+          ws.onmessage = function (event) {
+            const messageEvent = JSON.parse(event.data);
+            if (messageEvent.subscription) {
+              chat.style.display = "block";
+              setTimeout(() => {
+                chat.style.display = "none";
+              }, 2000);
+            }
+          };
+        };
+      };
+    </script>
+    <img
+      id="container"
+      style="display: none"
+      src="https://watch.gamerswithoutborders.com/wp-content/uploads/2021/05/rocket-league_logo_logotype_white-1024x398.png"
+    />
+  </body>
+</html>

@@ -1,5 +1,5 @@
 window.onload = async () => {
-  const ws = new WebSocket("ws://localhost:8080/chat");
+  const ws = new WebSocket("ws://localhost:7001/chat");
   const emoteMap = await getEmoteMap();
   const betterttvMap = await getBetterttvMap();
 
@@ -66,7 +66,10 @@ window.onload = async () => {
 
   const chat = document.getElementById("chat-container");
   ws.onmessage = function (event) {
-    addMessage(chat, JSON.parse(event.data));
+    const messageEvent = JSON.parse(event.data);
+    if (messageEvent.type === "message") {
+      addMessage(chat, messageEvent);
+    }
   };
 };
 
