@@ -5,27 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
-    <script>
-      window.onload = async () => {
-        const ws = new WebSocket("ws://localhost:7001/chat");
-        ws.onmessage = async (event) => {
-          const chat = document.getElementById("container");
-          ws.onmessage = function (event) {
-            const messageEvent = JSON.parse(event.data);
-            if (messageEvent.subscription) {
-              chat.style.display = "block";
-              setTimeout(() => {
-                chat.style.display = "none";
-              }, 2000);
-            }
-          };
-        };
-      };
-    </script>
-    <img
-      id="container"
-      style="display: none"
-      src="https://watch.gamerswithoutborders.com/wp-content/uploads/2021/05/rocket-league_logo_logotype_white-1024x398.png"
-    />
+    <style>
+      .notification {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .notification-gif {
+        padding-left: 90px;
+      }
+
+      .notification-text {
+        font-size: 20px;
+        font-family: "Roboto", sans-serif;
+        color: #ffffff;
+        font-weight: bold;
+        text-align: center;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.core.min.js"></script>
+    <script src="notification.js"></script>
   </body>
 </html>

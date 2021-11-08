@@ -121,7 +121,7 @@ const messageParser = (message, emoteMap, betterttvMap) => {
 };
 
 const mapUsrWithBadge = (badges, node) => {
-  const { vip, moderator, broadcaster, subscriber, premium } = badges;
+  const { vip, moderator, broadcaster, subscriber, premium, founder } = badges;
 
   if (broadcaster) {
     node.textContent = "adm";
@@ -129,6 +129,8 @@ const mapUsrWithBadge = (badges, node) => {
     node.textContent = "mod";
   } else if (vip) {
     node.textContent = "vip";
+  } else if (founder) {
+    node.textContent = "👑";
   } else if (subscriber) {
     node.textContent = "sub";
   } else if (premium) {

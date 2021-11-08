@@ -1,21 +1,13 @@
 package main
 
 import (
-	"context"
-	"encoding/gob"
-	"encoding/json"
-	"io/ioutil"
-	"time"
-
-	// "encoding/json"
 	"flag"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 const ()
@@ -28,6 +20,9 @@ var (
 	TwitchApiUrl   string
 	userID         string
 	baseUrl        string
+	token          string
+	ngrokUrl       string
+	channelInfo    ChannelInfo
 	httpClient     = &http.Client{}
 )
 
@@ -73,60 +68,6 @@ func loadEnvVariables() (err error) {
 	return
 }
 
-func fetchApiToken() (string, error) {
-	log.Debug("Fetching Twitch API token from ", TwitchTokenUrl)
-	gob.Register(&oauth2.Token{})
-
-	if serverType == "mock" {
-		log.Debug("Fetching mock ")
-		req, err := http.NewRequest("POST", TwitchTokenUrl, nil)
-		if err != nil {
-			log.Fatal(err)
-			return "", err
-		}
-		req.Header.Set("Content-Type", "application/json")
-		query := req.URL.Query()
-		query.Add("client_secret", clientSecret)
-		query.Add("grant_type", "client_credentials")
-		req.URL.RawQuery = query.Encode()
-
-		resp, err := httpClient.Do(req)
-		if err != nil {
-			log.Fatal("Error requesting mock info", err)
-			return "", err
-		}
-
-		responseData, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal("Error reading response body", err)
-			return "", err
-		}
-
-		log.Debug("Response body: ", string(responseData))
-
-		var authInfo struct {
-			AccessToken string `json:"access_token"`
-		}
-		json.Unmarshal(responseData, &authInfo)
-
-		return authInfo.AccessToken, nil
-	}
-
-	oauth2Config = &clientcredentials.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		TokenURL:     TwitchTokenUrl,
-	}
-
-	token, err := oauth2Config.Token(context.Background())
-	if err == nil {
-		log.Debug("Access token: %s\n", token.AccessToken)
-	} else {
-		log.Fatal(err)
-	}
-	return token.AccessToken, err
-}
-
 type SubscriptionReq struct {
 	Subscription struct {
 		ID        string `json:"id"`
@@ -155,30 +96,14 @@ type SubscriptionReq struct {
 	} `json:"event"`
 }
 
-func callback(w http.ResponseWriter, r *http.Request) (err error) {
-	log.Debug("Callback called")
-
-	requestData, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Fatal("Error reading response body", err)
-		return err
-	}
-	var requestParsed SubscriptionReq
-	err = json.Unmarshal(requestData, &requestParsed)
-	if err != nil {
-		log.Fatal("Error parsing request body", err)
-		return err
-	}
-
-	for _, con := range c {
-		con.WriteJSON(requestParsed)
-	}
-	return
-}
 func main() {
-	// Go encoding for gorilla/sessions
 	err := loadEnvVariables()
 	if err != nil {
+		return
+	}
+	ngrokUrl, err = runNgrok()
+	if err != nil {
+		log.Fatal("Error running ngrok", err)
 		return
 	}
 
@@ -197,21 +122,19 @@ func main() {
 	}
 
 	// Fetch API Token
-	token, err := fetchApiToken()
+	token, err = fetchApiToken()
 	if err != nil {
 		log.Fatal("Error fetching API token")
 		return
 	}
 
-	channelInfo, err := fetchTwitchChannelInfo(token)
+	channelInfo, err = fetchTwitchChannelInfo(token)
 	if err != nil {
 		log.Fatal("Error fetching Twitch Channel Info")
 		return
 	}
 
-	go callWebhook(token, channelInfo.ID)
 	twitchIRCConnect()
-	go callWebhook(token, channelInfo.ID)
 	// Websocket init
 	log.Debug("Creating static dir")
 	fs := http.FileServer(http.Dir("./static"))
@@ -219,7 +142,8 @@ func main() {
 	log.Info("Serving static files")
 	http.Handle("/", fs)
 	handleFunc("/chat", chat)
-	handleFunc("/callback", callback)
+	handleFunc("/callback", responseChallengeCallback)
+	handleFunc("/create", create)
 
 	log.Info("Started running on http://localhost:7001")
 	log.Info(http.ListenAndServe(":7001", nil))
