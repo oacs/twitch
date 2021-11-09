@@ -21,7 +21,7 @@ window.onload = async () => {
   // carret
   const carret = document.createElement("span");
   carret.classList.add("carret");
-  carret.innerText = " > ";
+  carret.innerText = " >  ";
 
   const addMessage = (chat, messageEvent) => {
     const { displayName, message, tags } = messageEvent;
@@ -38,7 +38,7 @@ window.onload = async () => {
 
     // Username path
     const usernamePath = document.createElement("span");
-    usernamePath.classList.add("username-path");
+    usernamePath.classList.add(getDisplayNameClasses(badgesMap));
     usernamePath.innerText = displayName;
     // message
     const messageText = document.createElement("span");
@@ -60,6 +60,9 @@ window.onload = async () => {
     if (chat.children.length > 10) {
       chat.removeChild(chat.children[0]);
     }
+
+    const messageWriter = setupTypewriter(messageText);
+    messageWriter.type();
 
     chat.lastChild.scrollIntoView();
   };
@@ -124,17 +127,99 @@ const mapUsrWithBadge = (badges, node) => {
   const { vip, moderator, broadcaster, subscriber, premium, founder } = badges;
 
   if (broadcaster) {
-    node.textContent = "adm";
+    node.textContent = "🚀";
   } else if (moderator) {
-    node.textContent = "mod";
+    node.textContent = "👮";
   } else if (vip) {
-    node.textContent = "vip";
+    node.textContent = "💎";
   } else if (founder) {
     node.textContent = "👑";
   } else if (subscriber) {
-    node.textContent = "sub";
+    node.textContent = "🧑‍🚀";
   } else if (premium) {
-    node.textContent = "pri";
+    node.textContent = "🌙";
   }
   return node;
 };
+
+const getDisplayNameClasses = (badges) => {
+  const { vip, moderator, broadcaster, subscriber, premium, founder } = badges;
+  if (broadcaster) {
+    return "broadcaster";
+  } else if (moderator) {
+    return "moderator";
+  } else if (vip) {
+    return "vip";
+  } else if (founder) {
+    return "founder";
+  } else if (subscriber) {
+    return "subscriber";
+  } else if (premium) {
+    return "premium";
+  }
+};
+
+function setupTypewriter(message) {
+  const innerHtml = message.innerHTML;
+  const typeSpeed = 500 / innerHtml.length;
+
+  message.innerHTML = "";
+
+  debugger;
+  let cursorPosition = 0,
+    tag = document.createElement("span"),
+    writingTag = false,
+    tagOpen = false,
+    tempTypeSpeed = 0;
+
+  const type = function () {
+    if (writingTag === true) {
+      tag += innerHtml[cursorPosition];
+    }
+
+    const current = innerHtml[cursorPosition];
+    if (current === "<") {
+      tempTypeSpeed = 0;
+      if (tagOpen) {
+        tagOpen = false;
+        writingTag = true;
+      } else {
+        tag = "";
+        tagOpen = true;
+        writingTag = true;
+        tag += current;
+      }
+    }
+    if (!writingTag && tagOpen) {
+      tag.innerHTML += current;
+    }
+    if (!writingTag && !tagOpen) {
+      if (current === " ") {
+        tempTypeSpeed = 0;
+      } else {
+        tempTypeSpeed = typeSpeed;
+      }
+      message.innerHTML += current;
+    }
+    if (writingTag === true && current === ">") {
+      tempTypeSpeed = typeSpeed;
+      writingTag = false;
+      if (tagOpen) {
+        var newSpan = document.createElement("span");
+        message.appendChild(newSpan);
+        newSpan.innerHTML = tag;
+        tag = newSpan.firstChild;
+        tagOpen = false;
+      }
+    }
+
+    cursorPosition += 1;
+    if (cursorPosition < innerHtml.length) {
+      setTimeout(type, tempTypeSpeed);
+    }
+  };
+
+  return {
+    type: type,
+  };
+}

@@ -7,22 +7,33 @@ body {
   background-color: #000000;
   box-sizing: border-box;
   width: 425px;
-  height: 200px;
   overflow: hidden;
   padding: 20px;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
-p {
-  position: relative;
-  margin-left: -8.5em;
-  text-align: left;
-  font-size: 1.25em;
-  font-family: monospace;
-  white-space: normal;
-  overflow: hidden;
-  width: 0;
-  font-weight: bold;
+.broadcaster {
+  color: red;
+}
+
+.moderator {
+  color: blue;
+}
+
+.founder {
+  color: orange;
+}
+
+.subscriber {
+  color: green;
+}
+
+.prime {
+  color: purple;
+}
+
+.vip {
+  color: yellow;
 }
 
 span {
@@ -39,18 +50,19 @@ span {
 }
 
 .usr-path {
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 .slash {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .message-text {
   color: #01baef;
 }
 
-.caret {
+.carret {
+  margin-right: 0.7rem;
   color: #fff;
 }
 
@@ -166,14 +178,10 @@ span {
 }
 
 .typewriter {
-  font-family: "Lato", sans-serif;
-  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  font-family: "Quicksand", sans-serif;
+  display: flex;
   margin: 0 auto; /* Gives that scrolling effect as the typing happens */
   color: white;
-  animation: typing 0.3s steps(40, end) forwards;
-  -webkit-animation: typing 0.3s steps(40, end) forwards;
-  -moz-animation: typing 0.3s steps(40, end) forwards;
-  -o-animation: typing 0.3s steps(40, end) forwards;
 }
 
 /* The typing effect */
