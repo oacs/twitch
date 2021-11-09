@@ -21,6 +21,7 @@ var (
 	userID         string
 	baseUrl        string
 	token          string
+	Port           string
 	ngrokUrl       string
 	channelInfo    ChannelInfo
 	httpClient     = &http.Client{}
@@ -60,7 +61,7 @@ func startTwitchServer() {
 }
 func loadEnvVariables() (err error) {
 	log.Debug("Fetching .env ")
-	err = godotenv.Load(".env.local")
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 		return err
@@ -98,6 +99,7 @@ type SubscriptionReq struct {
 
 func main() {
 	err := loadEnvVariables()
+	Port = os.Getenv("PORT")
 	if err != nil {
 		return
 	}
@@ -145,6 +147,6 @@ func main() {
 	handleFunc("/callback", responseChallengeCallback)
 	handleFunc("/create", create)
 
-	log.Info("Started running on http://localhost:7001")
-	log.Info(http.ListenAndServe(":7001", nil))
+	log.Info("Started running on http://localhost:" + Port)
+	log.Info(http.ListenAndServe(Port, nil))
 }

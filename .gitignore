@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-.env.local
+.env
 betterttv
 twitch
 tmp
