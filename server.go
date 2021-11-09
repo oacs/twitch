@@ -10,8 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const ()
-
 var (
 	serverType     string
 	clientSecret   string
